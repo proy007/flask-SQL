@@ -8,10 +8,7 @@ username = os.environ['DATABASE_USER_NAME']
 host = os.environ['DATABASE_HOST']
 password = os.environ['DATABASE_PASSWORD']
 
-
 url = f"mysql+pymysql://{username}:{password}@{host}/{databaseName}"
-
-
 
 engine = create_engine(
   url,
@@ -28,7 +25,7 @@ engine = create_engine(
   })
 
 
-def load_job_from_db():
+def load_jobs_from_db():
   with engine.connect() as conn:
     result = conn.execute(text('select * from jobs'))
 
@@ -48,4 +45,12 @@ def load_job_from_db():
     return jobs
 
 
-load_job_from_db()
+def load_job_from_db(id):
+  with engine.connect() as conn:
+    result = conn.execute(text(f'select * from jobs where job_id={id}'))
+    res_keys = result.keys()
+    rows = result.all()
+    if len(rows) == 0:
+      return None
+    else:
+      return dict(zip(res_keys, rows[0]))
