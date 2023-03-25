@@ -1,4 +1,3 @@
-# import sqlalchemy
 from sqlalchemy import create_engine, text
 import os
 
@@ -47,6 +46,8 @@ def load_jobs_from_db():
 
 def load_job_from_db(id):
   with engine.connect() as conn:
+    # result = conn.execute(text('select * from jobs where job_id=:val'),val=id)
+
     result = conn.execute(text(f'select * from jobs where job_id={id}'))
     res_keys = result.keys()
     rows = result.all()
@@ -54,3 +55,22 @@ def load_job_from_db(id):
       return None
     else:
       return dict(zip(res_keys, rows[0]))
+
+
+# created application table using mysql-workbench. Here we're just adding data to it.
+def add_application_data_to_db(job_id, data):
+  with engine.connect() as conn:
+    query = text(
+      "insert into application (job_id, full_name, email, linkedinUrl, education,work_experience,resumeUrl) values (:job_id, :full_name,:email, :linkedin, :education, :workExp,:resume_url)"
+    )
+
+    conn.execute(
+      query, {
+        'job_id': job_id,
+        'full_name': data['full_name'],
+        'email': data['email'],
+        'linkedin': data['linkedin'],
+        'education': data['education'],
+        'workExp': data['workExp'],
+        'resume_url': data['resume_url']
+      })
